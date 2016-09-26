@@ -1,0 +1,22 @@
+{
+  "ip": "",
+  "port": "9000",
+  "db": {
+    "host": "localhost",
+    "database": "",
+    "username": "",
+    "password": "",
+    "maxPoolAmount": 50
+  },
+  "cors": {
+    "origins": [ "*" ],
+    "methods": [ "POST", "GET", "OPTIONS" ],
+    "headers": [ "Content-Type", "X-Token", "X-Requested-With" ]
+  },
+  "google": {
+    "clientId": "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+    "clientSecret": "GOOGLE_CLIENT_SECRET"
+  },
+  "cookieSecret": "your secret",
+  "sessionSecret": "your secret"
+}

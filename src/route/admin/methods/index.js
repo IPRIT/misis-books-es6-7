@@ -1,0 +1,1 @@
+export versionSwitcher from './version-switcher-v4-to-v5';
