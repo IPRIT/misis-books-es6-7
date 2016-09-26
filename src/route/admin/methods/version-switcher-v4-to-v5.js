@@ -1,8 +1,6 @@
-import { User } from '../../../models';
 import Log from 'log4js';
 import { OldEdition, Edition, EditionAuthor, EditionCategory } from '../../../models';
 import deap from 'deap';
-import Promise from 'bluebird';
 import { parseDocumentName, parseImageName } from "../../../utils";
 
 const log = Log.getLogger('Version switcher');
