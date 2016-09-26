@@ -13,10 +13,19 @@
     "methods": [ "POST", "GET", "OPTIONS" ],
     "headers": [ "Content-Type", "X-Token", "X-Requested-With" ]
   },
-  "google": {
-    "clientId": "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
-    "clientSecret": "GOOGLE_CLIENT_SECRET"
-  },
   "cookieSecret": "your secret",
-  "sessionSecret": "your secret"
+  "sessionSecret": "your secret",
+  "vk": {
+    "defaultPhoto": "http://example.com/default-profile-photo.png",
+    "secureKey": "SECURE_KEY"
+  },
+  "storage": {
+    "cdnPath": "static folder",
+    "documents": {
+      "directory": "documents folder"
+    },
+    "covers": {
+      "directory": "covers folder"
+    }
+  }
 }
