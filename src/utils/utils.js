@@ -21,3 +21,32 @@ export function parseNameFromUrl(url, nameRegexp) {
   let isLocalHost = ownHostRegexp.test(url);
   return [ match[1], isLocalHost ];
 }
+
+export class AsyncQueue {
+  queue = [];
+  inProcess = false;
+  
+  wait(element, cb) {
+    return new Promise(resolve => {
+      this.queue.push([ element, cb, resolve ]);
+      this.added();
+    })
+  }
+  
+  added() {
+    if (this.inProcess) {
+      return;
+    }
+    this.process();
+  }
+  
+  async process() {
+    this.inProcess = true;
+    let queuedElement;
+    while (queuedElement = this.queue.shift()) {
+      let [ element, process, resolver ] = queuedElement;
+      resolver(await process(element));
+    }
+    this.inProcess = false;
+  }
+}

@@ -1,17 +1,48 @@
 import Log from 'log4js';
 import { OldEdition, Edition, EditionAuthor, EditionCategory } from '../../../models';
 import deap from 'deap';
-import { parseDocumentName, parseImageName } from "../../../utils";
+import SphinxClient from 'sphinxapi';
+import Promise from 'bluebird';
+import util from 'util';
+import { parseDocumentName, parseImageName, AsyncQueue } from "../../../utils";
+
+var cl = new SphinxClient();
+cl.SetServer('localhost', 9312);
+cl.SetMatchMode(SphinxClient.SPH_MATCH_EXTENDED2);
 
 const log = Log.getLogger('Version switcher');
 
 export default (req, res, next) => {
   log.info('Switching...');
-  repairEditions().then(() => {
+  
+  let query = req.query.q || "";
+  let categories = req.query.categories && req.query.categories.split(',').map(parseInt) || [];
+  let authors = req.query.authors && req.query.authors.split(',').map(parseInt) || [];
+  let count = req.query.count && Math.max(0, Math.min(200, Number(req.query.count))) || 10;
+  let offset = req.query.offset && Math.max(0, Number(req.query.offset)) || 0;
+  
+  cl.ResetFilters();
+  if (categories.length) {
+    console.log(categories);
+    cl.SetFilter('categoryid', categories);
+  }
+  if (authors.length) {
+    console.log(authors);
+    cl.SetFilter('authorid', authors);
+  }
+  cl.SetLimits(offset, count, 10000);
+  cl.Query(query, function(err, result) {
+    if (err) {
+      return res.json(err);
+    }
+    console.log(util.inspect(result, false, null, true));
+    res.json(result);
+  });
+  /*repairEditions().then(() => {
     res.json({
       result: 'success'
     });
-  }).catch(next);
+  }).catch(next);*/
 };
 
 async function repairEditions() {
@@ -105,6 +136,7 @@ function getCategoryName(categoryId = 8) {
 function getAuthors(authorString) {
   let authorRegexp = /^(?:([a-zA-Zа-яА-ЯёЁ-]+)[ ]([a-zA-Zа-яА-ЯёЁ-]\.)?[ ]?([a-zA-Zа-яА-ЯёЁ-]\.)?)/i;
   let nonAlphabeticRegexp = /([^a-zA-Zа-яА-ЯёЁ._ -])/gi;
+  let repeatableWhitespacesRegexp = /(?=\s(\s+))/gi;
   if (typeof authorString !== 'string') {
     return [];
   }
@@ -112,6 +144,7 @@ function getAuthors(authorString) {
     .split(',')
     .map(author => author.replace(nonAlphabeticRegexp, ''))
     .map(author => author.trim())
+    .map(author => author.replace(repeatableWhitespacesRegexp, ''))
     .filter(author => author.length > 0);
   return authorsArray.map(author => {
     let matches = author.match(authorRegexp);
@@ -139,9 +172,20 @@ function getAuthors(authorString) {
   });
 }
 
+/**
+ * Helps mysql store only unique authors
+ * due to concurrency issue
+ */
+let authorsQueue;
+
 function insertAuthor(authorObject) {
-  return EditionAuthor.findOrCreate({
-    where: authorObject,
-    defaults: authorObject
-  }).spread(author => author);
+  if (!authorsQueue) {
+    authorsQueue = new AsyncQueue();
+  }
+  return authorsQueue.wait(authorObject, authorObject => {
+    return EditionAuthor.findOrCreate({
+      where: authorObject,
+      defaults: authorObject
+    }).spread(newAuthor => newAuthor);
+  });
 }

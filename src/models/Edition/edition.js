@@ -15,9 +15,9 @@ function ShortHexId() {
 }
 
 let Edition = sequelize.define('Edition', {
-  uuid: {
-    type: Sequelize.UUID,
-    defaultValue: Sequelize.UUIDV1,
+  id: {
+    type: Sequelize.INTEGER.UNSIGNED,
+    autoIncrement: true,
     primaryKey: true
   },
   shortId: {
@@ -27,7 +27,7 @@ let Edition = sequelize.define('Edition', {
   },
   elibraryDocumentId: {
     type: Sequelize.INTEGER,
-    allowNull: false
+    defaultValue: -1
   },
   elibraryAbsothequeId: {
     type: Sequelize.INTEGER

@@ -2,9 +2,9 @@ import Sequelize from 'sequelize';
 import sequelize from '../sequelize';
 
 let EditionAuthor = sequelize.define('EditionAuthor', {
-  uuid: {
-    type: Sequelize.UUID,
-    defaultValue: Sequelize.UUIDV1,
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
     primaryKey: true
   },
   lastName: {
