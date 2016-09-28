@@ -27,6 +27,7 @@
     "request-promise": "^4.1.0",
     "require-json5": "^1.0.2",
     "sequelize": "^3.23.6",
+    "sphinx-promise": "^1.0.4",
     "sphinxapi": "^1.2.1"
   },
   "devDependencies": {

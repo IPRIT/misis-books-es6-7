@@ -1,14 +1,13 @@
 import Log from 'log4js';
 import { OldEdition, Edition, EditionAuthor, EditionCategory } from '../../../models';
 import deap from 'deap';
-import SphinxClient from 'sphinxapi';
 import Promise from 'bluebird';
 import util from 'util';
 import { parseDocumentName, parseImageName, AsyncQueue } from "../../../utils";
+import Sphinx from 'sphinx-promise';
 
-var cl = new SphinxClient();
-cl.SetServer('localhost', 9312);
-cl.SetMatchMode(SphinxClient.SPH_MATCH_EXTENDED2);
+var sphinx = new Sphinx();
+//cl.SetMatchMode(SphinxClient.SPH_MATCH_EXTENDED2);
 
 const log = Log.getLogger('Version switcher');
 
@@ -21,23 +20,21 @@ export default (req, res, next) => {
   let count = req.query.count && Math.max(0, Math.min(200, Number(req.query.count))) || 10;
   let offset = req.query.offset && Math.max(0, Number(req.query.offset)) || 0;
   
-  cl.ResetFilters();
-  if (categories.length) {
-    console.log(categories);
-    cl.SetFilter('categoryid', categories);
-  }
-  if (authors.length) {
-    console.log(authors);
-    cl.SetFilter('authorid', authors);
-  }
-  cl.SetLimits(offset, count, 10000);
-  cl.Query(query, function(err, result) {
-    if (err) {
-      return res.json(err);
-    }
-    console.log(util.inspect(result, false, null, true));
+  let filters = [{
+    attr: 'categoryid',
+    values: categories
+  }, {
+    attr: 'authorid',
+    values: authors
+  }];
+  let limits = {
+    offset,
+    limit: count
+  };
+  sphinx.query({ query, filters, limits }).then(result => {
     res.json(result);
-  });
+  }).catch(next);
+  
   /*repairEditions().then(() => {
     res.json({
       result: 'success'
