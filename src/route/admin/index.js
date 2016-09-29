@@ -4,6 +4,6 @@ import * as adminMethods from './methods';
 
 const router = express.Router();
 
-router.get('/switch-version', [ userRetriever, rightsAllocator() ], adminMethods.versionSwitcher);
+router.post('/switch-version', [ userRetriever, rightsAllocator() ], adminMethods.versionSwitcher);
 
 export default router;

@@ -1,20 +1,17 @@
 import Log from 'log4js';
 import { OldEdition, Edition, EditionAuthor, EditionCategory } from '../../../models';
 import deap from 'deap';
-import Promise from 'bluebird';
-import util from 'util';
 import { parseDocumentName, parseImageName, AsyncQueue } from "../../../utils";
-import Sphinx from 'sphinx-promise';
-
-var sphinx = new Sphinx();
-//cl.SetMatchMode(SphinxClient.SPH_MATCH_EXTENDED2);
+import * as editions from '../../../models/Edition/methods';
 
 const log = Log.getLogger('Version switcher');
 
 export default (req, res, next) => {
   log.info('Switching...');
+  console.log(req.body);
+  res.json(editions.search(req.body));
   
-  let query = req.query.q || "";
+  /*let query = req.query.q || "";
   let categories = req.query.categories && req.query.categories.split(',').map(parseInt) || [];
   let authors = req.query.authors && req.query.authors.split(',').map(parseInt) || [];
   let count = req.query.count && Math.max(0, Math.min(200, Number(req.query.count))) || 10;
@@ -33,7 +30,7 @@ export default (req, res, next) => {
   };
   sphinx.query({ query, filters, limits }).then(result => {
     res.json(result);
-  }).catch(next);
+  }).catch(next);*/
   
   /*repairEditions().then(() => {
     res.json({
