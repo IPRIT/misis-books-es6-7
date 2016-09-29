@@ -1,12 +1,11 @@
 import express from 'express';
 import { rightsAllocator, userRetriever } from '../../utils';
-import authenticator from './authenticate';
-import * as userMethods from './methods';
+import * as user from './methods';
 
 const router = express.Router();
 
-router.use('/authenticate', authenticator);
+router.use('/authenticate', user.authenticator);
 
-router.get('/me', [ userRetriever, rightsAllocator('user') ], userMethods.me);
+router.get('/me', [ userRetriever, rightsAllocator('user') ], user.me);
 
 export default router;

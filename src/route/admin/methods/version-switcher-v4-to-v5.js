@@ -2,41 +2,16 @@ import Log from 'log4js';
 import { OldEdition, Edition, EditionAuthor, EditionCategory } from '../../../models';
 import deap from 'deap';
 import { parseDocumentName, parseImageName, AsyncQueue } from "../../../utils";
-import * as editions from '../../../models/Edition/methods';
 
 const log = Log.getLogger('Version switcher');
 
 export default (req, res, next) => {
   log.info('Switching...');
-  console.log(req.body);
-  res.json(editions.search(req.body));
-  
-  /*let query = req.query.q || "";
-  let categories = req.query.categories && req.query.categories.split(',').map(parseInt) || [];
-  let authors = req.query.authors && req.query.authors.split(',').map(parseInt) || [];
-  let count = req.query.count && Math.max(0, Math.min(200, Number(req.query.count))) || 10;
-  let offset = req.query.offset && Math.max(0, Number(req.query.offset)) || 0;
-  
-  let filters = [{
-    attr: 'categoryid',
-    values: categories
-  }, {
-    attr: 'authorid',
-    values: authors
-  }];
-  let limits = {
-    offset,
-    limit: count
-  };
-  sphinx.query({ query, filters, limits }).then(result => {
-    res.json(result);
-  }).catch(next);*/
-  
-  /*repairEditions().then(() => {
+  repairEditions().then(() => {
     res.json({
       result: 'success'
     });
-  }).catch(next);*/
+  }).catch(next);
 };
 
 async function repairEditions() {
@@ -128,9 +103,10 @@ function getCategoryName(categoryId = 8) {
 }
 
 function getAuthors(authorString) {
-  let authorRegexp = /^(?:([a-zA-Zа-яА-ЯёЁ-]+)[ ]([a-zA-Zа-яА-ЯёЁ-]\.)?[ ]?([a-zA-Zа-яА-ЯёЁ-]\.)?)/i;
-  let nonAlphabeticRegexp = /([^a-zA-Zа-яА-ЯёЁ._ -])/gi;
-  let repeatableWhitespacesRegexp = /(?=\s(\s+))/gi;
+  const authorRegexp = /^(?:([a-zA-Zа-яА-ЯёЁ-]+)[ ]([a-zA-Zа-яА-ЯёЁ-]\.)?[ ]?([a-zA-Zа-яА-ЯёЁ-]\.)?)/i;
+  const nonAlphabeticRegexp = /([^a-zA-Zа-яА-ЯёЁ._ -])/gi;
+  const repeatableWhitespacesRegexp = /(?=\s(\s+))/gi;
+  
   if (typeof authorString !== 'string') {
     return [];
   }

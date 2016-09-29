@@ -1,4 +1,4 @@
-import { User, OldUser } from '../../../../models';
+import { User, OldUser } from '../../../../../models';
 import Log from 'log4js';
 import { rememberUser } from "../session-manager";
 

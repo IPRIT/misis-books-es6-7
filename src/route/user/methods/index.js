@@ -1,5 +1,2 @@
-import me from './user.me';
-
-export {
-  me
-};
+export me from './user.me';
+export authenticator from './authenticate';

@@ -3,6 +3,10 @@ const groups = {
     mask: 0x1000,
     name: 'Admin'
   },
+  proUser: {
+    mask: 0x200,
+    name: 'Premium User'
+  },
   user: {
     mask: 0x100,
     name: 'User'
@@ -12,7 +16,7 @@ const groups = {
     name: 'Locked'  
   },
   all: {
-    mask: 0x1000 | 0x100 | 0x10,
+    mask: 0x1000 | 0x200 | 0x100 | 0x10,
     name: 'All'
   }
 };
@@ -43,8 +47,7 @@ let utils = {
   },
   
   groupsByMask: mask => Object.keys(groups)
-    .filter(groupKey => groupKey !== 'all')
-    .filter(groupKey => utils.hasRight(groupKey, mask))
+    .filter(groupKey => groupKey !== 'all' && utils.hasRight(groupKey, mask))
     .map(groupKey => groups[ groupKey ]),
   
   groupsByMaskSorted: (mask, order = 'desc') => {

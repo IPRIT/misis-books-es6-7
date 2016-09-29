@@ -1,5 +1,6 @@
 import { typeCheck as isType } from 'type-check';
 import * as lodash from 'lodash';
+import deap from 'deap';
 
 const OPTS_MIN_LIMIT   = 0;
 const OPTS_MAX_LIMIT   = 200;
@@ -52,7 +53,10 @@ export function ensureArguments(args = {}) {
     if (!argumentSetup) {
       return;
     }
-    returnValue[ argKey ] = ensureValue(args[ argKey ], ...argumentSetup);
+    deap.extend(returnValue, {
+      [ argKey ]: ensureValue(args[ argKey ], ...argumentSetup)
+    });
+    console.log(returnValue);
   });
   return returnValue;
 }

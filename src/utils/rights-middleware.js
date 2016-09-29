@@ -13,10 +13,10 @@ export default (...groups) => {
     }
   }
   let defaultGroups = [ 'admin' ];
-  let requestMask = userGroups.utils.grouping(defaultGroups, ...groups);
+  let requestedMask = userGroups.utils.grouping(defaultGroups, ...groups);
 
   return (req, res, next) => {
-    req.requestMask = requestMask;
+    req.requestedMask = requestedMask;
     req.isPublic = options.public;
     if (options.public) {
       return next();
@@ -24,7 +24,7 @@ export default (...groups) => {
     let loggedInUser = req.user;
     if (!loggedInUser) {
       return next(new HttpError('The user must be logged in', 401));
-    } else if (!loggedInUser.hasRight(requestMask)) {
+    } else if (!loggedInUser.hasRight(requestedMask)) {
       return next(new HttpError('Access denied', 403));
     }
     next();
