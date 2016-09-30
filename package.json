@@ -8,7 +8,6 @@
     "git": "https://github.com/IPRIT/pokemarket-backend"
   },
   "scripts": {
-    "install": "./scripts/install.sh",
     "start-dev": "node server.js"
   },
   "dependencies": {
@@ -28,9 +27,9 @@
     "request-promise": "^4.1.0",
     "require-json5": "^1.0.2",
     "sequelize": "^3.23.6",
-    "sphinx-promise": "^1.0.4",
+    "sphinx-promise": "^1.0.5",
     "sphinxapi": "^1.2.1",
-    "type-check": "latest"
+    "type-check": "^0.3.2"
   },
   "devDependencies": {
     "babel-core": "^6.11.4",

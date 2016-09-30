@@ -18,12 +18,21 @@ let EditionAuthor = sequelize.define('EditionAuthor', {
   }
 }, {
   engine: 'MYISAM',
+  timestamps: false,
   indexes: [{
     name: 'search_author_index',
     type: 'FULLTEXT',
     fields: [ 'lastName', 'firstName', 'patronymicName' ]
   }],
-  timestamps: false
+  getterMethods: {
+    fullName() {
+      let placeholder = '{lastName} {firstName} {patronymicName}';
+      return [ 'lastName', 'firstName', 'patronymicName' ].reduce((placeholder, key) => {
+        let regexp = new RegExp(`\{${key}\}`, 'gi');
+        return placeholder.replace(regexp, this.getDataValue( key ));
+      }, placeholder).trim();
+    }
+  },
 });
 
 export default EditionAuthor;

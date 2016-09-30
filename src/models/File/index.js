@@ -41,6 +41,14 @@ let File = sequelize.define('File', {
       }
     }
   },
+  getterMethods: {
+    absoluteUrl() {
+      return this.getAbsoluteUrl();
+    },
+    relativeUrl() {
+      return this.getRelativePath();
+    }
+  },
   instanceMethods: {
     getAbsoluteUrl() {
       if (this.externalUri) {

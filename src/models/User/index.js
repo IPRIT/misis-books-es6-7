@@ -49,9 +49,16 @@ let User = sequelize.define('User', {
       let mask = this.getDataValue('accessGroup');
       if (this.getDataValue('isBan')) {
         mask = userGroups.groups.locked.mask;
+      } else if (this.getDataValue('hasPremium')
+        && mask !== userGroups.groups.admin.mask) {
+        mask = userGroups.groups.proUser.mask;
       }
       return userGroups.utils.groupByMask(mask);
     }
+  },
+  hasPremium: {
+    type: Sequelize.VIRTUAL,
+    defaultValue: false
   },
   searchesNumber: {
     type: Sequelize.INTEGER,
@@ -75,7 +82,7 @@ let User = sequelize.define('User', {
   }
 }, {
   getterMethods: {
-    fullname() {
+    fullName() {
       let placeholder = '{firstName} {lastName}';
       return ['firstName', 'lastName'].reduce((placeholder, key) => {
         let regexp = new RegExp(`\{${key}\}`, 'gi');
@@ -84,7 +91,7 @@ let User = sequelize.define('User', {
     }
   },
   setterMethods: {
-    fullname(value) {
+    fullName(value) {
       var names = (value || "").trim().split(/\s+/);
       while (names.length !== 2) {
         (names.length > 2 ?

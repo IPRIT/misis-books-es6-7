@@ -1,4 +1,5 @@
 import { typeCheck as isType } from 'type-check';
+import { ensureValue } from "../../../../utils";
 import * as lodash from 'lodash';
 import deap from 'deap';
 
@@ -28,7 +29,7 @@ export function ensureArguments(args = {}) {
     } ],
     categoryIds: [ '[Number]', [ 1 ], actual => lodash.uniq(actual) ],
     authorIds: [ '[Number]', [ ], actual => lodash.uniq(actual) ],
-    fields: [ '[String]', [ 'default' ], (actual, defaultValue) => {
+    fields: [ '[String]', [ ], (actual, defaultValue) => {
       if (!actual.length) {
         actual.push(defaultValue);
       }
@@ -56,20 +57,6 @@ export function ensureArguments(args = {}) {
     deap.extend(returnValue, {
       [ argKey ]: ensureValue(args[ argKey ], ...argumentSetup)
     });
-    console.log(returnValue);
   });
   return returnValue;
-}
-
-export function ensureValue(actual, type, defaultValue, fn = () => {}) {
-  if (!isType(type, actual)) {
-    actual = defaultValue;
-  }
-  try {
-    let regulatedValue = fn(actual, defaultValue);
-    return isType('Undefined', regulatedValue) ?
-      actual : regulatedValue;
-  } catch (err) {
-    return defaultValue;
-  }
 }

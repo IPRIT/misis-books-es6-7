@@ -25,7 +25,7 @@ function getOrCreateUser(vkUser) {
   }).then(user => {
     if (user) {
       console.log();
-      log.info('Got user:\t', user && user.get({ plain: true }).fullname);
+      log.info('Got user:\t', user && user.get({ plain: true }).fullName);
       return user;
     }
     return createUser( vkUser );

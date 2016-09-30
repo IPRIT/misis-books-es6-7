@@ -1,4 +1,4 @@
-import { User, AuthToken } from '../models';
+import { User, AuthToken, Subscription } from '../models';
 
 export default async (req, res, next) => {
   if (req.user) {
@@ -25,9 +25,29 @@ async function getUser(token) {
   if (!tokenInstance) {
     return null;
   }
-  return tokenInstance.getUser({
+  let curTime = new Date().getTime();
+  let user = await tokenInstance.getUser({
     attributes: {
       exclude: [ 'deletedAt' ]
-    }
+    },
+    include: [{
+      model: Subscription,
+      required: false,
+      where: {
+        $and: {
+          startTime: {
+            $lt: curTime
+          },
+          finishTime: {
+            $gt: curTime
+          }
+        }
+      }
+    }]
   });
+  if (!user) {
+    return null;
+  }
+  user.hasPremium = user.Subscriptions.length > 0;
+  return user;
 }

@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.use('/authenticate', user.authenticator);
 
-router.get('/me', [ userRetriever, rightsAllocator('user') ], user.me);
+router.get('/me', [ userRetriever, rightsAllocator('user', 'proUser') ], user.me);
 
 export default router;

@@ -1,4 +1,5 @@
 import deap from 'deap';
+import { typeCheck as isType } from 'type-check';
 
 export default (obj, filterOptions) => {
   if (!obj || typeof obj !== 'object') {
@@ -6,14 +7,17 @@ export default (obj, filterOptions) => {
   } else if (!filterOptions) {
     return obj;
   }
-  return filterByAttributes(obj, filterOptions);
+  return filter(obj, filterOptions);
 }
 
-function filterByAttributes(obj, attrs) {
-  let [ include, exclude ] = [[], []];
+function filter(obj, attrs) {
+  //todo: needs to entirely rewrite
+  let [ include, exclude, replace, deep ] = [ [], [], [], false ];
   if (typeof attrs === 'object') {
     include = attrs.include || [];
     exclude = attrs.exclude || [];
+    replace = attrs.replace || [];
+    deep = attrs.deep || false;
   } else if (Array.isArray(attrs)) {
     include = attrs;
   } else if (typeof attrs === 'string') {
@@ -25,11 +29,54 @@ function filterByAttributes(obj, attrs) {
   if (include.length) {
     include.forEach(attr => {
       if (obj.hasOwnProperty(attr)) {
-        newObj[ attr ] = obj[ attr ];
+        let isObject = isType('Object', obj[ attr ]);
+        let isArray = isType('Array', obj[ attr ]);
+        if (deep) {
+          if (isArray) {
+            deap.extend(newObj, {
+              [ attr ]: obj[ attr ].map(
+                value => isType('Object', value) ? filter(value, attrs) : value
+              )
+            });
+          } else if (isObject) {
+            deap.extend(newObj, {
+              [ attr ]: filter(obj[ attr ], attrs)
+            });
+          } else {
+            //todo: what?
+            newObj[ attr ] = obj[ attr ];
+          }
+        } else {
+          //todo: what?
+          newObj[ attr ] = obj[ attr ];
+        }
       }
     });
   } else {
-    deap.extend(newObj, obj);
+    //todo: again?
+    Object.keys(obj).forEach(attr => {
+      let isObject = isType('Object', obj[ attr ]);
+      let isArray = isType('Array', obj[ attr ]);
+      if (deep) {
+        if (isArray) {
+          deap.extend(newObj, {
+            [ attr ]: obj[ attr ].map(
+              value => isType('Object', value) ? filter(value, attrs) : value
+            )
+          });
+        } else if (isObject) {
+          deap.extend(newObj, {
+            [ attr ]: filter(obj[ attr ], attrs)
+          });
+        } else {
+          //todo: what?
+          newObj[ attr ] = obj[ attr ];
+        }
+      } else {
+        //todo: what?
+        newObj[ attr ] = obj[ attr ];
+      }
+    });
   }
   if (exclude.length) {
     exclude.forEach(attr => {
@@ -38,5 +85,21 @@ function filterByAttributes(obj, attrs) {
       }
     });
   }
+  replace.forEach(replaceOption => {
+    let [
+      from, to, fn = () => {},
+      fromValue = newObj[ from ]
+    ] = replaceOption;
+    if (isType('Undefined', fromValue)) {
+      return;
+    }
+    let toValue = fn(fromValue);
+    deap.extend(newObj, {
+      [ to ]: toValue || fromValue
+    });
+    if (to !== from) {
+      delete newObj[ from ];
+    }
+  });
   return newObj;
 }

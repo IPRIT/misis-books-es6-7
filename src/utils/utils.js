@@ -1,3 +1,5 @@
+import { typeCheck as isType } from 'type-check';
+
 export function parseImageName(imageUrl) {
   let nameRegexp = /\/([a-zA-Z-_.0-9]+\.(?:png|jpe?g|gif|web(?:p|m)|svg))$/i;
   return parseNameFromUrl(imageUrl, nameRegexp);
@@ -48,5 +50,18 @@ export class AsyncQueue {
       resolver(await process(element));
     }
     this.inProcess = false;
+  }
+}
+
+export function ensureValue(actual, type, defaultValue, fn = () => {}) {
+  if (!isType(type, actual)) {
+    actual = defaultValue;
+  }
+  try {
+    let regulatedValue = fn(actual, defaultValue);
+    return isType('Undefined', regulatedValue) ?
+      actual : regulatedValue;
+  } catch (err) {
+    return defaultValue;
   }
 }

@@ -1,6 +1,8 @@
 import Sequelize from 'sequelize';
 import sequelize from '../sequelize';
 import Promise from 'bluebird';
+import * as methods from './methods';
+import { collate } from "./methods/utils";
 
 function ShortHexId() {
   let currentId = 100000;
@@ -80,6 +82,14 @@ let Edition = sequelize.define('Edition', {
       return {
         where: { categoryId }
       }
+    }
+  },
+  classMethods: {
+    search(...args) {
+      return methods.search(...args);
+    },
+    collateIds(...args) {
+      return collate(...args);
     }
   }
 });
