@@ -4,7 +4,7 @@ import { ensureArguments, sphinx } from './utils';
 import { filterEntity as filter } from '../../../utils';
 import deap from 'deap';
 
-export default async (args = {}) => {
+export default async (user, args = {}) => {
   let ensuredArgs = ensureArguments(args);
   let { query, offset, limit, categoryIds, authorIds, fields, types } = ensuredArgs;
   let filters = []
@@ -29,10 +29,11 @@ export default async (args = {}) => {
   }
   let result = await sphinx.query(query, { filters, limits, matchMode });
   let editionsIds = sphinx.getIdsFromResult(result);
-  let editions = await Edition.collateIds(editionsIds, fields, excludedFields);
+  let editions = await Edition.collateIds(user, editionsIds, fields, excludedFields);
   
   const metaResultInfo = {
     total: result.total,
+    totalCurrent: editions.length,
     sid: args.sid,
     args: ensuredArgs
   };
@@ -56,6 +57,10 @@ export default async (args = {}) => {
           ], [
             'Cover',
             'imageCover'
+          ], [
+            'Faves',
+            'starred',
+            array => Array.isArray(array) && array.length > 0
           ] ]
         }
       );

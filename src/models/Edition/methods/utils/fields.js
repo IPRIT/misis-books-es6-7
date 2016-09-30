@@ -27,11 +27,21 @@ export function ensureArguments(args = {}) {
       }
       return Math.max(OPTS_MIN_LIMIT, Math.min(OPTS_MAX_LIMIT, actual));
     } ],
-    categoryIds: [ '[Number]', [ 1 ], actual => lodash.uniq(actual) ],
-    authorIds: [ '[Number]', [ ], actual => lodash.uniq(actual) ],
-    fields: [ '[String]', [ ], (actual, defaultValue) => {
-      if (!actual.length) {
-        actual.push(defaultValue);
+    categoryIds: [ '[Number] | String', [ 1 ], (actual, defaultValue) => {
+      if (isType('String', actual)) {
+        actual = actual.split(',').filter(field => field.length).map(category => Number(category));
+      }
+      return lodash.uniq(actual);
+    } ],
+    authorIds: [ '[Number] | String', [ ], (actual, defaultValue) => {
+      if (isType('String', actual)) {
+        actual = actual.split(',').filter(field => field.length).map(field => Number(field));
+      }
+      return lodash.uniq(actual);
+    } ],
+    fields: [ '[String] | String', [ ], (actual, defaultValue) => {
+      if (isType('String', actual)) {
+        actual = actual.split(',').filter(field => field.length).map(field => field.trim());
       }
       const groups = {
         'default': [ 'id', 'name' ],

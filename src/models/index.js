@@ -1,9 +1,9 @@
 import Log from 'log4js';
 import sequelize from './sequelize';
+import { Edition, EditionAuthor, EditionCategory, EditionFave } from './Edition';
 import User from './User';
 import AuthToken from './AuthToken';
 import Subscription from './Subscription';
-import { Edition, EditionAuthor, EditionCategory } from './Edition';
 import File from './File';
 
 import OldUser from './OldUser';
@@ -27,9 +27,24 @@ Edition.belongsTo(File, { foreignKey: 'documentUuid', as: 'Document' });
 Edition.belongsTo(File, { foreignKey: 'coverUuid', as: 'Cover' });
 Edition.belongsToMany(EditionAuthor, { through: 'EditionToAuthors', timestamps: false });
 EditionAuthor.belongsToMany(Edition, { through: 'EditionToAuthors', timestamps: false });
+User.belongsToMany(Edition, {
+  through: EditionFave,
+  foreignKey: 'userUuid',
+  as: 'Faves',
+  timestamps: false,
+  constraints: false
+});
+Edition.belongsToMany(User, {
+  through: EditionFave,
+  foreignKey: 'editionId',
+  as: 'Faves',
+  timestamps: false,
+  constraints: false
+});
 
 export {
   User, AuthToken, OldUser,
   Subscription, OldPayment, Edition,
-  EditionAuthor, EditionCategory, OldEdition
+  EditionAuthor, EditionCategory, OldEdition,
+  File
 };

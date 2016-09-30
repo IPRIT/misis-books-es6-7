@@ -18,7 +18,7 @@ export default function (req, res, next) {
       replace: [ [
         'Subscriptions',
         'subscription',
-        array => array.length ? array[0] : []
+        array => array.length ? array[0] : {}
       ] ] }
   ));
 }

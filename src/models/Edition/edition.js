@@ -62,16 +62,11 @@ let Edition = sequelize.define('Edition', {
   paranoid: true,
   engine: 'MYISAM',
   indexes: [{
-    name: 'short_id_index',
-    method: 'BTREE',
-    fields: [ 'shortId' ]
-  }, {
     name: 'search_index',
     type: 'FULLTEXT',
     fields: [ 'name', 'aliases' ]
   }, {
     name: 'elibrary_doc_id_index',
-    method: 'BTREE',
     fields: [ 'elibraryDocumentId' ]
   }],
   scopes: {
@@ -90,6 +85,18 @@ let Edition = sequelize.define('Edition', {
     },
     collateIds(...args) {
       return collate(...args);
+    },
+    getFaves(...args) {
+      return methods.getFaves(...args);
+    },
+    addFave(...args) {
+      return methods.addFave(...args);
+    },
+    removeFave(...args) {
+      return methods.removeFave(...args);
+    },
+    getPopular(...args) {
+      return methods.getPopular(...args);
     }
   }
 });

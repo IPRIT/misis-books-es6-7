@@ -1,5 +1,6 @@
 import deap from 'deap';
 import { typeCheck as isType } from 'type-check';
+import { ensureValue } from "./utils";
 
 export default (obj, filterOptions) => {
   if (!obj || typeof obj !== 'object') {
@@ -95,7 +96,7 @@ function filter(obj, attrs) {
     }
     let toValue = fn(fromValue);
     deap.extend(newObj, {
-      [ to ]: toValue || fromValue
+      [ to ]: ensureValue(toValue, '^(Undefined)', fromValue)
     });
     if (to !== from) {
       delete newObj[ from ];

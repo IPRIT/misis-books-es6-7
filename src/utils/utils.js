@@ -54,7 +54,17 @@ export class AsyncQueue {
 }
 
 export function ensureValue(actual, type, defaultValue, fn = () => {}) {
-  if (!isType(type, actual)) {
+  const regOppositeExpression = /\^\((.+)\)/i;
+  
+  let isOppositeType = type.startsWith('^');
+  if (isOppositeType) {
+    type = type.replace(regOppositeExpression, '$1');
+  }
+  let isProperlyType = isType(type, actual);
+  if (isOppositeType) {
+    isProperlyType = !isProperlyType;
+  }
+  if (!isProperlyType) {
     actual = defaultValue;
   }
   try {

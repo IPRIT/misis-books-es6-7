@@ -1,3 +1,3 @@
-export fave from './fave';
+export * as faves from './fave';
 export search from './search';
 export popular from './popular';

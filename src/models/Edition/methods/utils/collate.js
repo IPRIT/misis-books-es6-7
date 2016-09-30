@@ -1,7 +1,7 @@
-import { Edition, EditionCategory, EditionAuthor, File } from '../../../index';
+import { Edition, EditionCategory, EditionAuthor, File, EditionFave } from '../../../index';
 import { typeCheck as isType } from 'type-check';
 
-export default async function collateIds(ids, include = [], exclude = []) {
+export default async function collateIds(user, ids, include = [], exclude = []) {
   if (!isType('[Number]', ids)) {
     throw new HttpError('Collate items must be array of numbers');
   }
@@ -28,6 +28,13 @@ export default async function collateIds(ids, include = [], exclude = []) {
       model: File,
       association: Edition.associations.Cover,
       required: false
+    }, {
+      model: EditionFave,
+      association: Edition.associations.Faves,
+      required: false,
+      where: {
+        uuid: user.uuid
+      }
     }]
   };
   return Edition.findAll(editionConfig);
