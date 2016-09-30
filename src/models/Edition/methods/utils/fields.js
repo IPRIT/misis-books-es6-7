@@ -51,9 +51,6 @@ export function ensureArguments(args = {}) {
   let returnValue = {};
   Object.keys(argsDefaults).forEach(argKey => {
     let argumentSetup = argsDefaults[ argKey ];
-    if (!argumentSetup) {
-      return;
-    }
     deap.extend(returnValue, {
       [ argKey ]: ensureValue(args[ argKey ], ...argumentSetup)
     });

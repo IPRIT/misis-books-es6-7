@@ -2,9 +2,11 @@ import { Edition } from '../index';
 import Sphinx from 'sphinx-promise';
 import { ensureArguments, sphinx } from './utils';
 import { filterEntity as filter } from '../../../utils';
+import deap from 'deap';
 
 export default async (args = {}) => {
-  let { query, offset, limit, categoryIds, authorIds, fields, types } = ensureArguments(args);
+  let ensuredArgs = ensureArguments(args);
+  let { query, offset, limit, categoryIds, authorIds, fields, types } = ensuredArgs;
   let filters = []
     , limits = { offset, limit, maxMatches: 10000 }
     , matchMode = Sphinx.SPH_MATCH_EXTENDED2
@@ -25,29 +27,39 @@ export default async (args = {}) => {
       values: authorIds
     });
   }
-  let editionsIds = await sphinx.query(query, { filters, limits, matchMode, resultAsIds: true });
-  let results = await Edition.collateIds(editionsIds, fields, excludedFields);
+  let result = await sphinx.query(query, { filters, limits, matchMode });
+  let editionsIds = sphinx.getIdsFromResult(result);
+  let editions = await Edition.collateIds(editionsIds, fields, excludedFields);
   
-  return results.map(result => {
-    return filter(
-      result.get({ plain: true }), {
-        deep: true,
-        include: fields,
-        exclude: excludedFields,
-        replace: [ [
-          'EditionCategory',
-          'category'
-        ], [
-          'EditionAuthors',
-          'authors'
-        ], [
-          'Document',
-          'document'
-        ], [
-          'Cover',
-          'imageCover'
-        ] ]
-      }
-    );
-  });
+  const metaResultInfo = {
+    total: result.total,
+    sid: args.sid,
+    args: ensuredArgs
+  };
+  
+  let response = {
+    items: editions.map(result => {
+      return filter(
+        result.get({ plain: true }), {
+          deep: true,
+          include: fields,
+          exclude: excludedFields,
+          replace: [ [
+            'EditionCategory',
+            'category'
+          ], [
+            'EditionAuthors',
+            'authors'
+          ], [
+            'Document',
+            'document'
+          ], [
+            'Cover',
+            'imageCover'
+          ] ]
+        }
+      );
+    })
+  };
+  return deap.extend(metaResultInfo, response);
 }
