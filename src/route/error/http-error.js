@@ -28,8 +28,7 @@ export function ServerError(err, req, res, next) {
   let errorMessage = isDevelopmentMode ?
     err && err.message || defaultErrorMessage : defaultErrorMessage;
   let email = config.contact && config.contact.email;
-  let mailToUrl =
-    `mailto:${email}?subject=${encodeURIComponent('[MISIS Books] Я заметил на Вашем сервисе ошибку')}&body=${encodeURI(`Не удаляйте это. Это поможет понять суть ошибки.\n\n${err.stack}`)}`;
+  let mailToUrl = `mailto:${email}`;
   
   if (req.hasOwnProperty('isJsonRequest') && !req.isJsonRequest) {
     res.status(500).render('route/error/templates/server.pug', {
