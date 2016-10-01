@@ -10,8 +10,8 @@ export async function getPopular(user, args) {
     'createdAt', 'updatedAt', 'deletedAt', 'categoryId',
     'documentUuid', 'coverUuid', 'EditionToAuthors', 'aliases', 'EditionFave'
   ];
-
-  let { rows, count } = await Edition.findAndCountAll({
+  
+  const queryConfig = {
     where: {
       categoryId: {
         $in: categoryIds
@@ -40,17 +40,22 @@ export async function getPopular(user, args) {
       }
     }],
     limit, offset
-  });
+  };
+  if (!categoryIds.length || categoryIds[0] === 1) {
+    delete queryConfig.where.categoryId;
+  }
+  
+  let editions = await Edition.findAll(queryConfig);
   
   const metaResultInfo = {
-    total: count,
-    totalCurrent: rows.length,
+    total: await Edition.count(),
+    totalCurrent: editions.length,
     sid: args.sid,
     args: { offset, limit, categoryIds, authorIds, fields }
   };
   
   let response = {
-    items: rows.map(result => {
+    items: editions.map(result => {
       return filter(
         result.get({ plain: true }), {
           deep: true,
