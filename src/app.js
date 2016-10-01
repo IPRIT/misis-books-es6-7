@@ -13,7 +13,10 @@ import bodyParser from 'body-parser';
 import session from 'express-session';
 import formData from 'express-form-data';
 import apiRouter from './route';
+import cdnRouter from './route/cdn';
 import config from './utils/config';
+import path from 'path';
+import { ClientError, ServerError } from './route/error/http-error';
 
 let app = express();
   
@@ -25,6 +28,8 @@ app.use(formData.stream());
 app.use(formData.union());
 app.use(cookieParser(config.cookieSecret));
 app.enable('trust proxy');
+app.set('views', path.join(__dirname, '/'));
+app.set('view engine', 'pug');
 app.use(session({
   secret: config.sessionSecret, //'keyboard cat offset',
   resave: false,
@@ -34,20 +39,19 @@ app.use(session({
 /*
  * Connecting routers
  */
-app.use('/cdn', [(req, res, next) => {
-  //todo: control access
-  console.log('Serving file...');
-  next();
-}], express.static('cdn'));
-
+app.use('/cdn', cdnRouter);
 app.use('/api', apiRouter);
+
+app.use(ClientError);
+app.use(ServerError);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  let err = new Error('Not Found');
+  let err = new Error('Страница не найдена');
   err.status = 404;
-  res.writeHead(404);
-  res.write('Not found');
+  res.status(err.status).render('route/error/templates/client.pug', {
+    message: err.message
+  });
   next(err);
 });
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import { rightsAllocator, userRetriever } from '../../utils';
+import { rightsAllocator, userRetriever, isJsonRequest } from '../../utils';
 import * as documents from './methods';
 
 const router = express.Router();
@@ -12,5 +12,7 @@ router.route('/faves')
   .delete([ userRetriever, rightsAllocator('proUser') ], documents.faves.remove);
 
 router.get('/popular', [ userRetriever, rightsAllocator('user', 'proUser') ], documents.popular);
+
+router.get('/download/:shortId/token/:token', [ isJsonRequest(false), userRetriever, rightsAllocator('proUser') ], documents.download);
 
 export default router;

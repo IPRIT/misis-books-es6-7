@@ -23,9 +23,9 @@ export default (...groups) => {
     }
     let loggedInUser = req.user;
     if (!loggedInUser) {
-      return next(new HttpError('The user must be logged in', 401));
+      return next(new HttpError('You are not logged in', 401));
     } else if (!loggedInUser.hasRight(requestedMask)) {
-      return next(new HttpError('Access denied', 403));
+      return next(new HttpError('You have no permissions', 403));
     }
     next();
   };

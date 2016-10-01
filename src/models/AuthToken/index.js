@@ -25,7 +25,7 @@ let AuthToken = sequelize.define('AuthToken', {
     method: 'BTREE',
     fields: [ 'token' ]
   }],
-  defaultScope: function () {
+  defaultScope () {
     return {
       where: {
         isActive: true
@@ -41,6 +41,9 @@ let AuthToken = sequelize.define('AuthToken', {
   },
   instanceMethods: {
     getUser: function (options = {}) {
+      if (!this.isActive) {
+        return null;
+      }
       let defaultOptions = {
         where: {
           uuid: this.userUuid

@@ -4,7 +4,6 @@ import test from './test';
 import user from './user';
 import admin from './admin';
 import documents from './documents';
-import { ClientError, ApiError } from './error/api-errors';
 
 const router = express.Router();
 
@@ -14,8 +13,5 @@ router.use('/test', test);
 router.use('/user', user);
 router.use('/documents', documents);
 router.use('/admin', admin);
-
-router.use(ClientError);
-router.use(ApiError);
 
 export default router;

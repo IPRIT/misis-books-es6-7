@@ -1,11 +1,9 @@
 import { User, AuthToken, Subscription } from '../models';
 
 export default async (req, res, next) => {
-  if (req.user) {
-    //todo: remove in production (this case is only for assertion)
-    return next(new HttpError('The user already exists'));
-  }
-  let token = req.header('X-Token');
+  let { token } = req.params;
+  let queryStringToken = req.query.token;
+  token = req.header('X-Token') || token || queryStringToken;
   if (!token || typeof token !== 'string') {
     return next();
   }
@@ -14,6 +12,7 @@ export default async (req, res, next) => {
       return next();
     }
     req.user = user;
+    req.token = token;
     next();
   }).catch(next);
 };

@@ -4,5 +4,5 @@
 .idea
 node_modules
 config.development.json
-cdn
+/cdn
 # config.json

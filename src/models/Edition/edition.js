@@ -97,6 +97,9 @@ let Edition = sequelize.define('Edition', {
     },
     getPopular(...args) {
       return methods.getPopular(...args);
+    },
+    download(...args) {
+      return methods.download(...args);
     }
   }
 });
