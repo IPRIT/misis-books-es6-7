@@ -11,17 +11,46 @@ export async function getPopular(user, args) {
     'documentUuid', 'coverUuid', 'EditionToAuthors', 'aliases', 'EditionFave'
   ];
 
-  
+  let { rows, count } = await Edition.findAndCountAll({
+    where: {
+      categoryId: {
+        $in: categoryIds
+      }
+    },
+    order: [ [ 'downloadsNumber', 'DESC' ] ],
+    include: [{
+      model: EditionCategory
+    }, {
+      model: EditionAuthor,
+      required: false
+    }, {
+      model: File,
+      association: Edition.associations.Document,
+      required: false
+    }, {
+      model: File,
+      association: Edition.associations.Cover,
+      required: false
+    }, {
+      model: EditionFave,
+      association: Edition.associations.Faves,
+      required: false,
+      where: {
+        uuid: user.uuid
+      }
+    }],
+    limit, offset
+  });
   
   const metaResultInfo = {
-    total: await user.countFaves(),
-    totalCurrent: userFaves.length,
+    total: count,
+    totalCurrent: rows.length,
     sid: args.sid,
-    args: { offset, limit, categoryIds, fields }
+    args: { offset, limit, categoryIds, authorIds, fields }
   };
   
   let response = {
-    items: userFaves.map(result => {
+    items: rows.map(result => {
       return filter(
         result.get({ plain: true }), {
           deep: true,
