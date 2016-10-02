@@ -26,5 +26,8 @@ export async function download(user, args) {
     // todo: download the document from elibrary.misis.ru
     throw errDocumentTemporarilyNotAvailable;
   }
+  await user.increment('downloadsNumber');
+  await edition.increment('downloadsNumber');
+  
   return { redirectUrl: absoluteUrl };
 }

@@ -30,6 +30,7 @@ export default async (user, args = {}) => {
   let result = await sphinx.query(query, { filters, limits, matchMode });
   let editionsIds = sphinx.getIdsFromResult(result);
   let editions = await Edition.collateIds(user, editionsIds, fields, excludedFields);
+  await user.increment('searchesNumber');
   
   const metaResultInfo = {
     total: result.total,
