@@ -1,4 +1,4 @@
-import { Edition } from '../index';
+import { Edition, Query } from '../../index';
 import Sphinx from 'sphinx-promise';
 import { ensureArguments, sphinx } from './utils';
 import { filterEntity as filter } from '../../../utils';
@@ -31,6 +31,10 @@ export default async (user, args = {}) => {
   let editionsIds = sphinx.getIdsFromResult(result);
   let editions = await Edition.collateIds(user, editionsIds, fields, excludedFields);
   await user.increment('searchesNumber');
+  await user.createQuery({
+    ip: args.ip,
+    query
+  });
   
   const metaResultInfo = {
     total: result.total,

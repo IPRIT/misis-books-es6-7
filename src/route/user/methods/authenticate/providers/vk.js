@@ -22,13 +22,12 @@ function getOrCreateUser(vkUser) {
     where: {
       vkId: id
     }
-  }).then(user => {
+  }).tap(user => {
     if (user) {
-      console.log();
-      log.info('Got user:\t', user && user.get({ plain: true }).fullName);
-      return user;
+      log.info('Received user:', user && user.get({ plain: true }).fullName);
     }
-    return createUser( vkUser );
+  }).then(async user => {
+    return user || await createUser( vkUser );
   });
 }
 
@@ -47,46 +46,5 @@ async function createUser(vkUser) {
     downloadsNumber: 0,
     registerTime: new Date()
   };
-  let newUser = await User.create(newUserObject);
-  return await tryRestoreUserFromBackup(newUser) || newUser;
-}
-
-async function tryRestoreUserFromBackup(user) {
-  log.info('Restoring user from the old table...');
-  let userObject = user.get({ plain: true });
-  let { vkId } = userObject;
-  let oldUser = await OldUser.findOne({
-    where: {
-      vk_id: vkId
-    }
-  });
-  if (!oldUser) {
-    log.info('Old table does not exists current user');
-    return null;
-  }
-  let oldUserObject = oldUser.get({ plain: true });
-  let [ oldRegisterTime, oldDownloadsNumber, oldSearchesNumber, balance ] = [
-    oldUserObject.register_time,
-    oldUserObject.dl_count,
-    oldUserObject.count_queries,
-    await oldUser.getPaymentSum()
-  ];
-  let currentTime = new Date();
-  let subscriptionEndsAt = new Date(oldUserObject.end_subscription_time * 1000);
-  if (subscriptionEndsAt > currentTime) {
-    log.info('Creating subscription...');
-    var userSubscription = await user.createSubscription({
-      startTime: currentTime.getTime(),
-      finishTime: subscriptionEndsAt.getTime(),
-      paymentTime: currentTime.getTime()
-    });
-    log.info('Subscription has been created', userSubscription.get({ plain: true }));
-  }
-  log.info('Updating user...');
-  return user.update({
-    registerTime: oldRegisterTime * 1000,
-    downloadsNumber: oldDownloadsNumber,
-    searchesNumber: oldSearchesNumber,
-    balance
-  });
+  return User.create(newUserObject);
 }

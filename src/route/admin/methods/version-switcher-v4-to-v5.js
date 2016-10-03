@@ -1,28 +1,46 @@
 import Log from 'log4js';
-import { OldEdition, Edition, EditionAuthor, EditionCategory } from '../../../models';
 import deap from 'deap';
-import { parseDocumentName, parseImageName, AsyncQueue } from "../../../utils";
+import crypto from 'crypto';
+import { parseDocumentName, parseImageName, AsyncQueue, config } from "../../../utils";
+import {
+  OldEdition, Edition, EditionAuthor, EditionCategory, User,
+  OldUser, OldQuery, Query
+} from '../../../models';
 
 const log = Log.getLogger('Version switcher');
 
 export default (req, res, next) => {
-  log.info('Switching...');
-  repairEditions().then(() => {
-    res.json({
-      result: 'success'
-    });
-  }).catch(next);
+  log.info('Switching to 5.0...');
+  
+  const { pwdSign, pwdSecret } = config.system;
+  let { pwd } = req.body;
+  let pwdSignComputed = crypto.createHash('md5').update(`${pwd}-.-${pwdSecret}`).digest('hex');
+  if (pwdSignComputed !== pwdSign) {
+    return next(new HttpError('Access denied', 403));
+  }
+  
+  let startTime = new Date();
+  repairOldUsers()
+    .then(repairEditions)
+    .then(repairOldQueries)
+    .then(success)
+    .catch(next);
+  
+  res.json({
+    result: 'success'
+  });
+  
+  function success() {
+    console.log(`'Elapsed time: ${((new Date().getTime() - startTime.getTime()) / 1000).toFixed(3)} s.`);
+  }
 };
 
 async function repairEditions() {
   let categories = await insertCategories(1, 11);
-  return OldEdition.findAll().then(items => {
-    return items.map(item => item.get({ plain: true }));
-  }).then(items => {
-    return items.map(item => {
-      return deap.update(item, {
-        author: getAuthors(item.author)
-      });
+  return OldEdition.findAll().map(item => {
+    let plainItem = item.get({ plain: true });
+    return deap.update(plainItem, {
+      author: getAuthors(plainItem.author)
     });
   }).map(async item => {
     let newEditionObject = {
@@ -66,7 +84,7 @@ async function repairEditions() {
       });
     }
     return newEdition;
-  }, { concurrency: 1000 }).then(items => {
+  }, { concurrency: 1000 }).tap(items => {
     console.log('Editions have been created!', items.length);
   });
 }
@@ -158,4 +176,84 @@ function insertAuthor(authorObject) {
       defaults: authorObject
     }).spread(newAuthor => newAuthor);
   });
+}
+
+async function repairOldQueries() {
+  const rowsNumber = await OldQuery.count();
+  const blockSize = 1000;
+  let blocksNumber = Math.floor(rowsNumber / blockSize) + Number(rowsNumber % blockSize > 0);
+  
+  for (let blockNumber = 0; blockNumber < blocksNumber; ++blockNumber) {
+    await insertBlock(blockNumber);
+  }
+  
+  function insertBlock(blockNumber) {
+    let offset = blockNumber * blockSize;
+    return OldQuery.findAll({
+      order: [ [ 'id', 'ASC' ] ],
+      limit: blockSize,
+      offset
+    }).then(arr => {
+      return arr.sort((a, b) => b.id - a.id)
+    }).map(async oldQuery => {
+      const { id, user_id, query, time, ip, api } = oldQuery;
+      let newQuery = Query.build({
+        createdTime: time * 1000,
+        isApiQuery: api,
+        query, ip
+      });
+      let newUser = await User.getByOldId(user_id);
+      if (newUser) {
+        newQuery.userUuid = newUser.uuid;
+      }
+      console.log(`Current query row: ${id}`);
+      return newQuery.save();
+    }, { concurrency: 1 });
+  }
+}
+
+function repairOldUsers() {
+  return OldUser.findAll().map(oldUser => {
+    return insertUser(oldUser);
+  }, { concurrency: 1 });
+}
+
+async function insertUser(oldUser) {
+  const oldUserObject = oldUser.get({ plain: true });
+  let {
+    vk_id, photo, first_name, last_name, vk_domain, register_time,
+    dl_count, count_queries, recent_activity_time, last_logged_time
+  } = oldUserObject;
+  let balance = await oldUser.getPaymentSum();
+  
+  log.info('Creating user...:\t', `[id${vk_id}]: [${first_name} ${last_name}]`);
+  
+  let newUserObject = {
+    firstName: first_name,
+    lastName: last_name,
+    vkId: vk_id,
+    vkDomain: vk_domain,
+    vkPhoto: photo,
+    email: null,
+    balance,
+    searchesNumber: count_queries,
+    downloadsNumber: dl_count,
+    registerTime: register_time * 1000,
+    recentActivityTime: recent_activity_time * 1000,
+    lastLoggedTime: last_logged_time * 1000
+  };
+  let user = await User.create(newUserObject).delay(10);
+  
+  let currentTime = new Date();
+  let subscriptionEndsAt = new Date(oldUserObject.end_subscription_time * 1000);
+  if (subscriptionEndsAt > currentTime) {
+    log.info('Creating subscription...');
+    var userSubscription = await user.createSubscription({
+      startTime: currentTime.getTime(),
+      finishTime: subscriptionEndsAt.getTime(),
+      paymentTime: currentTime.getTime()
+    });
+    log.info('Subscription has been created and valid thru:', new Date(userSubscription.finishTime));
+  }
+  return user;
 }

@@ -1,6 +1,8 @@
 import { User, AuthToken, Subscription } from '../models';
 
 export default async (req, res, next) => {
+  req._ip = req.headers['x-real-ip'] || req.ip || req.ips || 'Not specified';
+  
   let { token } = req.params;
   let queryStringToken = req.query.token;
   token = req.header('X-Token') || token || queryStringToken;

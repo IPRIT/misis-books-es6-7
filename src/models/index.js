@@ -5,10 +5,12 @@ import User from './User';
 import AuthToken from './AuthToken';
 import Subscription from './Subscription';
 import File from './File';
+import Query from './Query';
 
 import OldUser from './OldUser';
 import OldPayment from './OldPayment';
 import OldEdition from './OldEdition';
+import OldQuery from './OldQuery';
 
 const log = Log.getLogger('models');
 
@@ -22,6 +24,7 @@ sequelize.sync(/**{ force: true }/**/).then(() => {
  */
 User.hasMany(AuthToken, { foreignKey: 'userUuid', targetKey: 'uuid' });
 User.hasMany(Subscription, { foreignKey: 'userUuid', targetKey: 'uuid' });
+User.hasMany(Query, { foreignKey: 'userUuid', targetKey: 'uuid' });
 Edition.belongsTo(EditionCategory, { foreignKey: 'categoryId' });
 Edition.belongsTo(File, { foreignKey: 'documentUuid', as: 'Document' });
 Edition.belongsTo(File, { foreignKey: 'coverUuid', as: 'Cover' });
@@ -30,21 +33,18 @@ EditionAuthor.belongsToMany(Edition, { through: 'EditionToAuthors', timestamps: 
 User.belongsToMany(Edition, {
   through: EditionFave,
   foreignKey: 'userUuid',
-  as: 'Faves',
   timestamps: false,
   constraints: false
 });
 Edition.belongsToMany(User, {
   through: EditionFave,
   foreignKey: 'editionId',
-  as: 'Faves',
   timestamps: false,
   constraints: false
 });
 
 export {
-  User, AuthToken, OldUser,
-  Subscription, OldPayment, Edition,
-  EditionAuthor, EditionCategory, OldEdition,
-  File
+  OldUser, OldPayment, OldQuery, OldEdition,
+  Subscription, User, AuthToken, File, Query,
+  Edition, EditionAuthor, EditionCategory, EditionFave
 };

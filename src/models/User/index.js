@@ -149,6 +149,19 @@ let User = sequelize.define('User', {
       }
     }
   },
+  classMethods: {
+    async getByOldId(oldUserId) {
+      let oldUser = await OldUser.findById(oldUserId);
+      if (!oldUser) {
+        return null;
+      }
+      return this.findOne({
+        where: {
+          vkId: oldUser.vk_id
+        }
+      });
+    }
+  },
   instanceMethods: {
     hasRight(mask) {
       return userGroups.utils.hasRight(

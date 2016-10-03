@@ -77,12 +77,13 @@ let OldUser = sequelize.define('OldUser', {
     fields: [ 'vk_id' ]
   }],
   instanceMethods: {
-    getPaymentSum() {
-      return OldPayment.sum('amount', {
+    async getPaymentSum() {
+      let sum = await OldPayment.sum('amount', {
         where: {
           user_id: this.id
         }
-      })
+      });
+      return sum || 0;
     }
   }
 });
