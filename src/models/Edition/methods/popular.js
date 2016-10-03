@@ -1,4 +1,4 @@
-import { Edition, EditionCategory, EditionAuthor, EditionFave, File } from '../../index';
+import { Edition, EditionCategory, EditionAuthor, EditionFave, File, User } from '../../index';
 import { ensureArguments } from './utils';
 import { filterEntity as filter } from '../../../utils';
 import deap from 'deap';
@@ -32,8 +32,7 @@ export async function getPopular(user, args) {
       association: Edition.associations.Cover,
       required: false
     }, {
-      model: EditionFave,
-      association: Edition.associations.Faves,
+      model: User,
       required: false,
       where: {
         uuid: user.uuid
@@ -74,7 +73,7 @@ export async function getPopular(user, args) {
             'Cover',
             'imageCover'
           ], [
-            'Faves',
+            'Users',
             'starred',
             array => Array.isArray(array) && array.length > 0
           ] ]

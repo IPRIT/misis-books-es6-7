@@ -1,4 +1,4 @@
-import { Edition, EditionCategory, EditionAuthor, EditionFave, File } from '../../index';
+import { Edition, EditionCategory, EditionAuthor, EditionFave, File, User } from '../../index';
 import { ensureArguments } from './utils';
 import { filterEntity as filter } from '../../../utils';
 import deap from 'deap';
@@ -17,6 +17,7 @@ export async function getFaves(user, args) {
         $in: categoryIds
       }
     },
+    order: [ [ 'createdTime', 'DESC' ] ],
     include: [{
       model: EditionCategory
     }, {
@@ -31,8 +32,7 @@ export async function getFaves(user, args) {
       association: Edition.associations.Cover,
       required: false
     }, {
-      model: EditionFave,
-      association: Edition.associations.Faves,
+      model: User,
       required: false,
       where: {
         uuid: user.uuid
@@ -43,10 +43,10 @@ export async function getFaves(user, args) {
   if (!categoryIds.length || categoryIds[0] === 1) {
     delete userFavesConfig.where.categoryId;
   }
-  let userFaves = await user.getFaves(userFavesConfig);
+  let userFaves = await user.getEditions(userFavesConfig);
   
   const metaResultInfo = {
-    total: await user.countFaves(),
+    total: await user.countEditions(),
     totalCurrent: userFaves.length,
     sid: args.sid,
     args: { offset, limit, categoryIds, fields }
@@ -72,7 +72,7 @@ export async function getFaves(user, args) {
             'Cover',
             'imageCover'
           ], [
-            'Faves',
+            'Users',
             'starred',
             array => Array.isArray(array) && array.length > 0
           ] ]
@@ -85,7 +85,7 @@ export async function getFaves(user, args) {
 
 export async function addFave(user, args) {
   let { editionId } = args;
-  let result = await user.addFafe(editionId); // Sequelize generates strange single form from plural
+  let result = await user.addEdition(editionId);
   return {
     success: true,
     added: result.length > 0
@@ -94,8 +94,9 @@ export async function addFave(user, args) {
 
 export async function removeFave(user, args) {
   let { editionId = 1 } = args;
+  console.log(user.__proto__);
   return {
     success: true,
-    removed: await user.removeFafe(editionId) > 0 // because it returns only `zero` or `not zero`
+    removed: await user.removeEdition(editionId) > 0 // because it returns only `zero` or `not zero`
   };
 }

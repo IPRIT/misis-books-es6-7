@@ -63,7 +63,7 @@ export default async (user, args = {}) => {
             'Cover',
             'imageCover'
           ], [
-            'Faves',
+            'Users',
             'starred',
             array => Array.isArray(array) && array.length > 0
           ] ]

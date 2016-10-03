@@ -1,4 +1,4 @@
-import { Edition, EditionCategory, EditionAuthor, File, EditionFave } from '../../../index';
+import { Edition, EditionCategory, EditionAuthor, File, User } from '../../../index';
 import { typeCheck as isType } from 'type-check';
 
 export default async function collateIds(user, ids, include = [], exclude = []) {
@@ -29,8 +29,7 @@ export default async function collateIds(user, ids, include = [], exclude = []) 
       association: Edition.associations.Cover,
       required: false
     }, {
-      model: EditionFave,
-      association: Edition.associations.Users,
+      model: User,
       required: false,
       where: {
         uuid: user.uuid
