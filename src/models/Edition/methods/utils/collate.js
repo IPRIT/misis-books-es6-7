@@ -30,7 +30,7 @@ export default async function collateIds(user, ids, include = [], exclude = []) 
       required: false
     }, {
       model: EditionFave,
-      association: Edition.associations.Faves,
+      association: Edition.associations.Users,
       required: false,
       where: {
         uuid: user.uuid

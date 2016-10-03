@@ -22,7 +22,7 @@ export default (req, res, next) => {
   let startTime = new Date();
   repairOldUsers()
     .then(repairEditions)
-    .then(repairOldQueries)
+    //.then(repairOldQueries)
     .then(success)
     .catch(next);
   
@@ -31,7 +31,7 @@ export default (req, res, next) => {
   });
   
   function success() {
-    console.log(`'Elapsed time: ${((new Date().getTime() - startTime.getTime()) / 1000).toFixed(3)} s.`);
+    console.log(`Elapsed time: ${((new Date().getTime() - startTime.getTime()) / 1000).toFixed(3)} s.`);
   }
 };
 

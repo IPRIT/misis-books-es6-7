@@ -66,7 +66,7 @@ let Edition = sequelize.define('Edition', {
     type: 'FULLTEXT',
     fields: [ 'name', 'aliases' ]
   }, {
-    name: 'elibrary_doc_id_index',
+    name: 'elibrary_doc_id_index_',
     fields: [ 'elibraryDocumentId' ]
   }],
   scopes: {
