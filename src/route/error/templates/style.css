@@ -5,7 +5,7 @@ body, html {
     padding: 0;
 }
 body {
-    font-family: 'Poiret One', cursive;
+    font-family: 'Poiret One', sans-serif;
     overflow-x: hidden;
 }
 .error {
@@ -23,16 +23,21 @@ body {
     text-align: center;
 }
 .error__header {
-    font-family: 'Monoton', cursive;
+    font-family: 'Monoton', sans-serif;
     font-size: 4em;
     color: #fff;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
 }
 .error__header_server-error {
     padding: 0 0 15px;
     font-size: 7em;
 }
 .error__message {
-    font-family: 'Poiret One', cursive;
+    font-family: 'Poiret One', sans-serif;
     font-weight: 100;
     color: #fff;
     font-size: 2em;
@@ -51,7 +56,7 @@ body {
     text-transform: none;
     font-size: 1.1em;
     transition: all .1s ease-in-out;
-    font-family: 'Comfortaa', cursive;
+    font-family: 'Comfortaa', sans-serif;
 }
 .error__action:hover {
     background: rgba(255, 255, 255, .35);

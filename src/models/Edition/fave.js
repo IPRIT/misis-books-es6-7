@@ -2,9 +2,9 @@ import Sequelize from 'sequelize';
 import sequelize from '../sequelize';
 
 let EditionFave = sequelize.define('EditionFave', {
-  createdTime: {
-    type: Sequelize.BIGINT,
-    defaultValue: () => new Date().getTime()
+  createdAt: {
+    type: Sequelize.DATE,
+    defaultValue: () => new Date()
   }
 }, {
   engine: 'INNODB',

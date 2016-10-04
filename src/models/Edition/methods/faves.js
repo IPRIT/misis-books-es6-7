@@ -17,7 +17,6 @@ export async function getFaves(user, args) {
         $in: categoryIds
       }
     },
-    order: [ [ 'createdTime', 'DESC' ] ],
     include: [{
       model: EditionCategory
     }, {
@@ -33,6 +32,7 @@ export async function getFaves(user, args) {
       required: false
     }, {
       model: User,
+      association: Edition.associations.Users,
       required: false,
       where: {
         uuid: user.uuid
@@ -94,7 +94,6 @@ export async function addFave(user, args) {
 
 export async function removeFave(user, args) {
   let { editionId = 1 } = args;
-  console.log(user.__proto__);
   return {
     success: true,
     removed: await user.removeEdition(editionId) > 0 // because it returns only `zero` or `not zero`

@@ -1,4 +1,4 @@
-import { Edition, EditionCategory, EditionAuthor, EditionFave, File } from '../../index';
+import { Edition, Download, File } from '../../index';
 import { typeCheck as isType } from 'type-check';
 
 export async function download(user, args) {
@@ -28,6 +28,10 @@ export async function download(user, args) {
   }
   await user.increment('downloadsNumber');
   await edition.increment('downloadsNumber');
+  await Download.create({
+    userUuid: user.uuid,
+    editionId: edition.id
+  });
   
   return { redirectUrl: absoluteUrl };
 }

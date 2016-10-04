@@ -33,6 +33,7 @@ let Subscription = sequelize.define('Subscription', {
   }
 }, {
   paranoid: true,
+  timestamps: false,
   engine: 'MYISAM',
   indexes: [{
     name: 'time_index',
