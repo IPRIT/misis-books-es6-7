@@ -30,7 +30,8 @@
     "sequelize": "^3.23.6",
     "sphinx-promise": "^1.0.5",
     "sphinxapi": "^1.2.1",
-    "type-check": "^0.3.2"
+    "type-check": "^0.3.2",
+    "uuid": "^2.0.3"
   },
   "devDependencies": {
     "babel-core": "^6.11.4",
