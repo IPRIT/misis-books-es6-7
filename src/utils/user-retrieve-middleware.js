@@ -1,7 +1,10 @@
 import { User, AuthToken, Subscription } from '../models';
 
 export default async (req, res, next) => {
-  req._ip = req.headers['x-real-ip'] || req.ip || req.ips || 'Not specified';
+  req._ip = req.headers['x-forwarded-for']
+    || req.connection.remoteAddress
+    || req.headers['x-real-ip']
+    || 'Not specified';
   
   let { token } = req.params;
   let queryStringToken = req.query.token;

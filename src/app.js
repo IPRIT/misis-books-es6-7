@@ -12,9 +12,10 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import session from 'express-session';
 import formData from 'express-form-data';
+import requestRestrict from 'express-light-limiter';
 import apiRouter from './route';
 import cdnRouter from './route/cdn';
-import config from './utils/config';
+import { config } from './utils';
 import path from 'path';
 import { ClientError, ServerError } from './route/error/http-error';
 
@@ -40,7 +41,7 @@ app.use(session({
  * Connecting routers
  */
 app.use('/cdn', cdnRouter);
-app.use('/api', apiRouter);
+app.use('/api', [ requestRestrict({ error: new HttpError('Too many requests', 429) }) ], apiRouter);
 
 app.use(ClientError);
 app.use(ServerError);
